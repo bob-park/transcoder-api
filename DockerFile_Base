@@ -1,0 +1,16 @@
+FROM ubuntu:22.04
+
+ENV TZ=Asia/Seoul
+ENV DEBIAN_FRONTEND=noninteractive
+
+ARG version=17.0.8.7-1
+
+RUN apt-get update \
+    && apt-get install -y ffmpeg \
+    && apt-get install -y curl \
+    && apt-get install -y java-17-amazon-corretto-jdk=1:$version \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+            curl gnupg software-properties-common
+
+ENV LANG C.UTF-8
+ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
