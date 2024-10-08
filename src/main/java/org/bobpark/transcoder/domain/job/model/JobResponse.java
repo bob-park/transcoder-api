@@ -15,6 +15,7 @@ public record JobResponse(Long id,
                           JobStatus status,
                           String source,
                           String dest,
+                          Integer progress,
                           JobOptions options,
                           LocalDateTime startDatetime,
                           LocalDateTime endDatetime,
@@ -28,6 +29,7 @@ public record JobResponse(Long id,
             .status(job.getStatus())
             .source(job.getSource())
             .dest(job.getDest())
+            .progress(job.getProgress())
             .options(job.getOptions())
             .startDatetime(job.getStartDatetime())
             .endDatetime(job.getEndDatetime())
