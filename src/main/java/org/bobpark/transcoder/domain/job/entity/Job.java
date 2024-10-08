@@ -55,12 +55,13 @@ public class Job extends BaseEntity {
     @Convert(converter = JobOptionsConverter.class)
     private JobOptions options;
 
+    private Integer progress;
     private LocalDateTime startDatetime;
     private LocalDateTime endDatetime;
 
     @Builder
     private Job(Long id, JobType type, JobStatus status, String source, String dest, JobOptions options,
-        LocalDateTime startDatetime, LocalDateTime endDatetime) {
+        Integer progress, LocalDateTime startDatetime, LocalDateTime endDatetime) {
 
         checkArgument(isNotEmpty(type), "type must be provided.");
         checkArgument(StringUtils.isNotBlank(source), "source must be provided.");
@@ -72,7 +73,36 @@ public class Job extends BaseEntity {
         this.source = source;
         this.dest = dest;
         this.options = defaultIfNull(options, JobOptions.builder().build());
+        this.progress = defaultIfNull(progress, 0);
         this.startDatetime = startDatetime;
         this.endDatetime = endDatetime;
     }
+
+    /*
+     * 편의 메서드
+     */
+    public void updateProgress(Integer progress) {
+        this.progress = progress;
+    }
+
+    public void fetch() {
+        this.status = JobStatus.PROCEEDING;
+        this.startDatetime = LocalDateTime.now();
+        this.endDatetime = null;
+        this.progress = 0;
+    }
+
+    public void complete(boolean isSuccess) {
+        this.status = isSuccess ? JobStatus.SUCCESS : JobStatus.FAILURE;
+        this.endDatetime = LocalDateTime.now();
+        this.progress = 100;
+    }
+
+    public void retry() {
+        this.status = JobStatus.WAITING;
+        this.startDatetime = null;
+        this.endDatetime = null;
+        this.progress = 0;
+    }
+
 }

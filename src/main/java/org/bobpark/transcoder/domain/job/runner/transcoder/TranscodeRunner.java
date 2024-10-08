@@ -9,6 +9,8 @@ import java.util.function.IntConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
@@ -57,7 +59,7 @@ public class TranscodeRunner implements JobRunner {
             List<FFmpegStream> streams = result.streams;
 
             for (FFmpegStream stream : streams) {
-                if ("VIDEO".equals(stream.codec_type.name())) {
+                if (StringUtils.equalsIgnoreCase("VIDEO", stream.codec_type.name())) {
                     log.debug("stream.nb_frames={}", stream.nb_frames);
 
                     totalFrameCount.set(stream.nb_frames);

@@ -51,6 +51,8 @@ bob-core:
 
 ## transcoder
 transcoder:
+  job:
+    cron-batch: ${job_cron_batch:0/2 * * * * *}
   ffmpeg:
     dir: ${ffmpeg_dir:file:///usr/bin/ffmpeg}
 

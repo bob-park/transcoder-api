@@ -9,6 +9,7 @@ create table jobs
     source             varchar(1000)                 not null,
     dest               varchar(1000)                 not null,
     options            json,
+    progress           int         default 0         not null,
     start_datetime     timestamp,
     end_datetime       timestamp,
     created_date       timestamp   default now()     not null,
