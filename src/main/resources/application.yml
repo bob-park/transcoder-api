@@ -1,0 +1,83 @@
+## server
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  tomcat:
+    mbeanregistry:
+      enabled: on
+
+## actuator
+management:
+  info:
+    java:
+      enabled: on
+    env:
+      enabled: on
+    os:
+      enabled: on
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+## spring
+spring:
+  application:
+    name: transcoder-api
+  main:
+    banner-mode: log
+    allow-bean-definition-overriding: on
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${database_host:localhost:5432}/${database_name:keyflow}
+    username: ${database_username}
+    password: ${database_password}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        discriminator:
+          ignore_explicit_for_joined: on
+
+## eureka
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+  client:
+    enabled: ${discovery_enabled:off}
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${discovery_host:http://localhost:8761/eureka}
+
+## bob
+bob-core:
+  enabled: on
+  jpa:
+    enabled: off
+
+## logging
+logging:
+  charset:
+    console: UTF-8
+    file: UTF-8
+  file:
+    name: ${logs_path}/${spring.application.name}.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:%-5p} ${PID} --- [%15.15t] %-40.40logger{39} :%06L : %m%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:%-5p} ${PID} --- [%15.15t] %-40.40logger{39} :%06L : %m%n"
+  logback:
+    rollingpolicy:
+      file-name-pattern: "${logs_path}/%d{yyyy-MM-dd}/${spring.application.name}.%d{yyyy-MM-dd}.%i.log"
+      max-file-size: 10MB
+      max-history: ${log_max_history:10}
+  level:
+    root: info
+    web: ${log_level:info}
+    org.bobpark: ${log_level:info}
+
