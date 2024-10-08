@@ -11,6 +11,7 @@ import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFprobe;
 
 import org.bobpark.transcoder.domain.job.runner.DelegatingJobRunner;
+import org.bobpark.transcoder.domain.job.runner.copy.CopyRunner;
 import org.bobpark.transcoder.domain.job.runner.transcoder.TranscodeRunner;
 
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class AppConfiguration {
         DelegatingJobRunner runner = new DelegatingJobRunner();
 
         runner.add(new TranscodeRunner(ffmpeg, ffprobe));
+        runner.add(new CopyRunner());
 
         return runner;
     }
