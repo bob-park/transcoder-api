@@ -21,7 +21,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.bobpark.transcoder.common.repository.QueryDslPath;
 import org.bobpark.transcoder.common.repository.RepositoryUtils;
 import org.bobpark.transcoder.domain.job.entity.Job;
-import org.bobpark.transcoder.domain.job.entity.QJob;
 import org.bobpark.transcoder.domain.job.model.SearchJobRequest;
 import org.bobpark.transcoder.domain.job.repository.query.JobQueryRepository;
 import org.bobpark.transcoder.domain.job.type.JobStatus;
@@ -63,7 +62,7 @@ public class JobQueryRepositoryImpl implements JobQueryRepository {
         BooleanBuilder builder = new BooleanBuilder();
 
         builder.and(eqType(searchRequest.type()))
-            .and(eqStatus(searchRequest.status()));
+            .and(inStatus(searchRequest.statuses()));
 
         return builder;
     }
@@ -72,8 +71,8 @@ public class JobQueryRepositoryImpl implements JobQueryRepository {
         return type != null ? job.type.eq(type) : null;
     }
 
-    private BooleanExpression eqStatus(JobStatus status) {
-        return status != null ? job.status.eq(status) : null;
+    private BooleanExpression inStatus(List<JobStatus> statuses) {
+        return !statuses.isEmpty() ? job.status.in(statuses) : null;
     }
 
     private OrderSpecifier<?>[] sort(Pageable pageable) {
