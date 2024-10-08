@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +38,7 @@ public class JobController {
 
     @GetMapping(path = "search")
     public Page<JobResponse> search(SearchJobRequest searchRequest,
-        @PageableDefault(size = 25) Pageable pageable) {
+        @PageableDefault(size = 25, sort = "createdDate", direction = Direction.DESC) Pageable pageable) {
         return jobService.search(searchRequest, pageable);
     }
 

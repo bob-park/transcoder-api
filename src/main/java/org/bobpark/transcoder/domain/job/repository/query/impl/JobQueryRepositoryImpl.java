@@ -3,6 +3,7 @@ package org.bobpark.transcoder.domain.job.repository.query.impl;
 import static org.bobpark.transcoder.domain.job.entity.QJob.*;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 
@@ -11,11 +12,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import org.bobpark.transcoder.common.repository.QueryDslPath;
+import org.bobpark.transcoder.common.repository.RepositoryUtils;
 import org.bobpark.transcoder.domain.job.entity.Job;
 import org.bobpark.transcoder.domain.job.entity.QJob;
 import org.bobpark.transcoder.domain.job.model.SearchJobRequest;
@@ -42,7 +46,7 @@ public class JobQueryRepositoryImpl implements JobQueryRepository {
         List<Job> content =
             query.selectFrom(job)
                 .where(mappingCondition(searchRequest))
-                .orderBy(job.createdDate.asc())
+                .orderBy(sort(pageable))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
@@ -71,4 +75,17 @@ public class JobQueryRepositoryImpl implements JobQueryRepository {
     private BooleanExpression eqStatus(JobStatus status) {
         return status != null ? job.status.eq(status) : null;
     }
+
+    private OrderSpecifier<?>[] sort(Pageable pageable) {
+        return Stream.of(
+                RepositoryUtils.sort(
+                    pageable,
+                    List.of(
+                        new QueryDslPath<>("createdDate", job.createdDate))),
+                new OrderSpecifier<?>[] {job.createdDate.desc()})
+            .flatMap(Stream::of)
+            .toArray(OrderSpecifier[]::new);
+
+    }
+
 }
