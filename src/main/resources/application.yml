@@ -61,6 +61,11 @@ bob-core:
   jpa:
     enabled: off
 
+## transcoder
+transcoder:
+  ffmpeg:
+    dir: ${ffmpeg_dir:file:///usr/bin/ffmpeg}
+
 ## logging
 logging:
   charset:
