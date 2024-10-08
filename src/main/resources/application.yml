@@ -30,7 +30,7 @@ spring:
     allow-bean-definition-overriding: on
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${database_host:localhost:5432}/${database_name:keyflow}
+    url: jdbc:postgresql://${database_host:localhost:5432}/${database_name:transcoder}
     username: ${database_username}
     password: ${database_password}
   jpa:
@@ -54,7 +54,7 @@ transcoder:
   job:
     cron-batch: ${job_cron_batch:0/2 * * * * *}
   ffmpeg:
-    dir: ${ffmpeg_dir:file:///usr/bin/ffmpeg}
+    dir: ${ffmpeg_dir:file:///usr/bin}
 
 ## logging
 logging:
@@ -62,7 +62,7 @@ logging:
     console: UTF-8
     file: UTF-8
   file:
-    name: ${logs_path}/${spring.application.name}.log
+    name: ${logs_path:/root/app/logs}/${spring.application.name}.log
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:%-5p} ${PID} --- [%15.15t] %-40.40logger{39} :%06L : %m%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:%-5p} ${PID} --- [%15.15t] %-40.40logger{39} :%06L : %m%n"

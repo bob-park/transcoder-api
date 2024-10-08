@@ -1,0 +1,24 @@
+FROM ubuntu:22.04
+
+ENV TZ=Asia/Seoul
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN set -eux \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl ca-certificates gnupg software-properties-common fontconfig java-common \
+    && curl -fL https://apt.corretto.aws/corretto.key | apt-key add - \
+    && add-apt-repository 'deb https://apt.corretto.aws stable main' \
+    && mkdir -p /usr/share/man/man1 || true \
+    && apt-get update \
+    && apt-get install -y java-17-amazon-corretto-jdk \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+        curl gnupg software-properties-common
+
+## ffmpeg
+RUN apt-get install -y ffmpeg
+
+ENV LANG C.UTF-8
+ENV JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
+
+CMD ["/bin/bash"]

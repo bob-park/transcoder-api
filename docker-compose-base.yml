@@ -1,0 +1,10 @@
+services:
+  base:
+    container_name: base
+    image: ghcr.io/bob-park/ffmpeg-with-java
+    build:
+      dockerfile: ./Dockerfile_Base
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
