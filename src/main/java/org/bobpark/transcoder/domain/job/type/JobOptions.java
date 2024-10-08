@@ -3,7 +3,7 @@ package org.bobpark.transcoder.domain.job.type;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record JobOptions(Boolean isOverride,
+public record JobOptions(boolean isOverride,
                          // video
                          String videoCodec,
                          String videoBitrate,
