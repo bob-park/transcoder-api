@@ -43,18 +43,6 @@ spring:
         discriminator:
           ignore_explicit_for_joined: on
 
-## eureka
-eureka:
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
-  client:
-    enabled: ${discovery_enabled:off}
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: ${discovery_host:http://localhost:8761/eureka}
-
 ## bob
 bob-core:
   enabled: on
