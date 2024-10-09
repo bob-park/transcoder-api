@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.function.IntConsumer;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import org.bobpark.core.exception.ServiceRuntimeException;
 import org.bobpark.transcoder.domain.job.runner.Command;
@@ -25,11 +30,29 @@ public class CopyRunner implements JobRunner {
 
         byte[] buffer = new byte[BUFFER_SIZE];
         File source = new File(com.source());
+        File dest = new File(com.dest());
+
+        // 파일이 존재할 경우 삭제 후 처리
+        if (dest.exists()) {
+
+            String baseName = FilenameUtils.getBaseName(dest.getAbsolutePath());
+            String extension = FilenameUtils.getExtension(dest.getAbsolutePath());
+
+            long unixTimestamp = LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
+
+            String newName = String.format("%s-%d.%s", baseName, unixTimestamp, extension);
+
+            boolean success = dest.renameTo(new File(dest.getParent() + File.separator + newName));
+
+            if(!success) {
+                throw new ServiceRuntimeException("Failed to rename " + dest.getAbsolutePath() + " to " + newName);
+            }
+        }
 
         log.debug("start copy...");
 
         try (FileInputStream fis = new FileInputStream(source);
-             FileOutputStream fos = new FileOutputStream(com.dest(), true)) {
+             FileOutputStream fos = new FileOutputStream(dest, true)) {
 
             long totalBytes = source.length();
             long copyBytes = 0;
