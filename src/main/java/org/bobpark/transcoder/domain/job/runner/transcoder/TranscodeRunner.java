@@ -3,7 +3,6 @@ package org.bobpark.transcoder.domain.job.runner.transcoder;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +15,7 @@ import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.builder.FFmpegBuilder.Strict;
+import net.bramp.ffmpeg.builder.FFmpegOutputBuilder;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import net.bramp.ffmpeg.probe.FFmpegStream;
 
@@ -39,15 +39,36 @@ public class TranscodeRunner implements JobRunner {
         DefaultCommand com = (DefaultCommand)command;
         JobOptions options = com.options();
 
-        FFmpegBuilder builder =
+        FFmpegOutputBuilder outputBuilder =
             new FFmpegBuilder()
                 .overrideOutputFiles(options.isOverride())
                 .setInput(com.source())
-                .addOutput(com.dest())
-                .addExtraArgs("-b:v", options.videoBitrate())
-                .addExtraArgs("-vf", "scale=" + options.videoScale())
-                .setPreset(options.preset())
-                .setStrict(Strict.EXPERIMENTAL)
+                .addOutput(com.dest());
+
+        // codec
+        if (StringUtils.isNotBlank(options.videoCodec())) {
+            outputBuilder.addExtraArgs("-b:v", options.videoBitrate());
+        }
+
+        // scale
+        if (StringUtils.isNotBlank(options.videoScale())) {
+            outputBuilder.addExtraArgs("-vf", "scale=" + options.videoScale());
+        }
+
+        // partial
+        if (StringUtils.isNotBlank(options.videoStartTime())
+            && StringUtils.isNotBlank(options.videoDurationTime())) {
+            outputBuilder.addExtraArgs("-ss", options.videoStartTime())
+                .addExtraArgs("-t", options.videoDurationTime());
+        }
+
+        // preset
+        if (StringUtils.isNotBlank(options.preset())) {
+            outputBuilder.setPreset(options.preset());
+        }
+
+        FFmpegBuilder builder =
+            outputBuilder.setStrict(Strict.EXPERIMENTAL)
                 .done();
 
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);

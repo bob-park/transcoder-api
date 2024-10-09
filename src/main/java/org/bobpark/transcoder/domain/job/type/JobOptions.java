@@ -8,5 +8,8 @@ public record JobOptions(boolean isOverride,
                          String videoCodec,
                          String videoBitrate,
                          String videoScale,
-                         String preset) {
+                         String preset,
+                         // partial
+                         String videoStartTime,
+                         String videoDurationTime) {
 }
