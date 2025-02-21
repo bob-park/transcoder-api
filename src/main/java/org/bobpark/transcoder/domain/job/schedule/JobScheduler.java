@@ -8,7 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import org.bobpark.core.model.common.Id;
+import com.malgn.common.model.Id;
+
 import org.bobpark.transcoder.domain.job.entity.Job;
 import org.bobpark.transcoder.domain.job.model.CompleteJobRequest;
 import org.bobpark.transcoder.domain.job.model.JobResponse;

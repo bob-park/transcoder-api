@@ -10,10 +10,10 @@ import java.util.function.IntConsumer;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import org.bobpark.core.exception.ServiceRuntimeException;
+import com.malgn.common.exception.ServiceRuntimeException;
+
 import org.bobpark.transcoder.domain.job.runner.Command;
 import org.bobpark.transcoder.domain.job.runner.DefaultCommand;
 import org.bobpark.transcoder.domain.job.runner.JobRunner;

@@ -19,7 +19,8 @@ import net.bramp.ffmpeg.builder.FFmpegOutputBuilder;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import net.bramp.ffmpeg.probe.FFmpegStream;
 
-import org.bobpark.core.exception.ServiceRuntimeException;
+import com.malgn.common.exception.ServiceRuntimeException;
+
 import org.bobpark.transcoder.domain.job.runner.Command;
 import org.bobpark.transcoder.domain.job.runner.DefaultCommand;
 import org.bobpark.transcoder.domain.job.runner.JobRunner;

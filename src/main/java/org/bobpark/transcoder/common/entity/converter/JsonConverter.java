@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.bobpark.core.exception.ServiceRuntimeException;
+import com.malgn.common.exception.ServiceRuntimeException;
 
 @Slf4j
 public abstract class JsonConverter<T> implements AttributeConverter<T, String> {

@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.bobpark.core.model.common.Id;
+import com.malgn.common.model.Id;
+
 import org.bobpark.transcoder.domain.job.entity.Job;
 import org.bobpark.transcoder.domain.job.model.CreateJobRequest;
 import org.bobpark.transcoder.domain.job.model.JobResponse;

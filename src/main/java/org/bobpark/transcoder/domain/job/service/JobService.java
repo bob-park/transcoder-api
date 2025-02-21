@@ -10,8 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.bobpark.core.exception.NotFoundException;
-import org.bobpark.core.model.common.Id;
+import com.malgn.common.exception.NotFoundException;
+import com.malgn.common.model.Id;
+
 import org.bobpark.transcoder.domain.job.entity.Job;
 import org.bobpark.transcoder.domain.job.model.CompleteJobRequest;
 import org.bobpark.transcoder.domain.job.model.CreateJobRequest;
