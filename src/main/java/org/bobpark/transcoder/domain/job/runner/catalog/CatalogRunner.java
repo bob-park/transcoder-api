@@ -32,9 +32,10 @@ public class CatalogRunner implements JobRunner {
     private static final String DEFAULT_DIR_NAME_TEMP_CATALOG = "temp";
     private static final int DEFAULT_WIDTH_SIZE = 400;
     private static final int DEFAULT_INTERVAL = 2;
-    private static final int DEFAULT_WIDTH_COUNT = 10;
-    private static final int DEFAULT_ROW_COUNT = 10;
+    private static final int DEFAULT_WIDTH_COUNT = 6;
+    private static final int DEFAULT_ROW_COUNT = 4;
     private static final String DEFAULT_EXTENSION = "png";
+    private static final String DEFAULT_CATALOG_EXTENSION = "webp";
 
     private final FFmpeg ffmpeg;
     private final FFprobe ffprobe;
@@ -74,9 +75,9 @@ public class CatalogRunner implements JobRunner {
         for (long i = 0; i < catalogImageCount; i++) {
 
             long startImageIndex = i * itemCount;
-            long currentTotalCount = Math.min(totalCount - startImageIndex, 100);
+            long currentTotalCount = Math.min(totalCount - startImageIndex, itemCount);
 
-            if (currentTotalCount > 10) {
+            if (currentTotalCount > DEFAULT_WIDTH_COUNT) {
                 generateFilterComplex(
                     FilenameUtils.getBaseName(com.source()),
                     com.dest(),
@@ -180,7 +181,7 @@ public class CatalogRunner implements JobRunner {
         builder.addOutput(
             dest + File.separatorChar
                 + basename + "_catalog_" + (startIndex / (DEFAULT_WIDTH_COUNT * DEFAULT_ROW_COUNT)) + "."
-                + DEFAULT_EXTENSION);
+                + DEFAULT_CATALOG_EXTENSION);
 
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
 
@@ -271,7 +272,7 @@ public class CatalogRunner implements JobRunner {
         builder.addOutput(
             dest + File.separatorChar
                 + basename + "_catalog_" + (startIndex / (DEFAULT_WIDTH_COUNT * DEFAULT_ROW_COUNT)) + "."
-                + DEFAULT_EXTENSION);
+                + DEFAULT_CATALOG_EXTENSION);
 
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
 
