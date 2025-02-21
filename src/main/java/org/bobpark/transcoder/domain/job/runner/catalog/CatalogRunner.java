@@ -32,10 +32,10 @@ public class CatalogRunner implements JobRunner {
     private static final String DEFAULT_DIR_NAME_TEMP_CATALOG = "temp";
     private static final int DEFAULT_WIDTH_SIZE = 400;
     private static final int DEFAULT_INTERVAL = 2;
-    private static final int DEFAULT_WIDTH_COUNT = 6;
-    private static final int DEFAULT_ROW_COUNT = 4;
+    private static final int DEFAULT_WIDTH_COUNT = 4;
+    private static final int DEFAULT_ROW_COUNT = 2;
     private static final String DEFAULT_EXTENSION = "png";
-    private static final String DEFAULT_CATALOG_EXTENSION = "webp";
+    private static final String DEFAULT_CATALOG_EXTENSION = "png";
 
     private final FFmpeg ffmpeg;
     private final FFprobe ffprobe;
@@ -63,7 +63,8 @@ public class CatalogRunner implements JobRunner {
         generateThumbnail(com.source(), com.dest());
 
         int itemCount = DEFAULT_ROW_COUNT * DEFAULT_WIDTH_COUNT;
-        long totalCount = totalSeconds / 2;
+        long totalCount = totalSeconds / 4 * 2;
+
         long catalogImageCount = totalCount / itemCount;
 
         if (totalCount % itemCount > 0) {
