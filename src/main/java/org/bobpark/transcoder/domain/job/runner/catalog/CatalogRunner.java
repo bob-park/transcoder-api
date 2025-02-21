@@ -33,6 +33,7 @@ public class CatalogRunner implements JobRunner {
     private static final int DEFAULT_WIDTH_SIZE = 400;
     private static final int DEFAULT_INTERVAL = 2;
     private static final int DEFAULT_WIDTH_COUNT = 10;
+    private static final int DEFAULT_ROW_COUNT = 10;
     private static final String DEFAULT_EXTENSION = "png";
 
     private final FFmpeg ffmpeg;
@@ -60,44 +61,42 @@ public class CatalogRunner implements JobRunner {
 
         generateThumbnail(com.source(), com.dest());
 
+        int itemCount = DEFAULT_ROW_COUNT * DEFAULT_WIDTH_COUNT;
         long totalCount = totalSeconds / 2;
+        long catalogImageCount = totalCount / itemCount;
 
-        String imageSourceFormat =
-            com.dest() + File.separatorChar
-                + DEFAULT_DIR_NAME_TEMP_CATALOG + File.separatorChar
-                + "%d." + DEFAULT_EXTENSION;
-
-        FFmpegBuilder builder =
-            new FFmpegBuilder()
-                .overrideOutputFiles(true);
-
-        // input
-        for (int i = 0; i < totalCount; i++) {
-            builder.addInput(String.format(imageSourceFormat, i + 1));
+        if (totalCount % itemCount > 0) {
+            catalogImageCount++;
         }
-        // filter_complex
-        if (totalCount <= 10) {
-            builder.addExtraArgs("-filter_complex", generateFilterComplexOneRow((int)totalCount));
-        } else {
-            builder.addExtraArgs("-filter_complex", generateFilterComplex(totalCount));
-        }
-
-        // output
-        builder.addOutput(
-            com.dest() + File.separatorChar
-                + FilenameUtils.getBaseName(com.source()) + "." + DEFAULT_EXTENSION);
 
         log.debug("generate catalog start...");
 
-        FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
+        for (long i = 0; i < catalogImageCount; i++) {
 
-        executor.createJob(builder).run();
+            long startImageIndex = i * itemCount;
+            long currentTotalCount = Math.min(totalCount - startImageIndex, 100);
 
-        log.debug("generate catalog end...");
+            if (currentTotalCount > 10) {
+                generateFilterComplex(
+                    FilenameUtils.getBaseName(com.source()),
+                    com.dest(),
+                    startImageIndex,
+                    currentTotalCount);
+            } else {
+                generateFilterComplexOneRow(
+                    FilenameUtils.getBaseName(com.source()),
+                    com.dest(),
+                    startImageIndex,
+                    currentTotalCount);
+            }
+
+            log.debug("generate catalog end...");
+
+        }
 
         // remove temp
         try {
-            FileUtils.forceDelete(new File(imageSourceFormat).getParentFile());
+            FileUtils.forceDelete(new File(com.dest() + File.separatorChar + DEFAULT_DIR_NAME_TEMP_CATALOG));
         } catch (IOException e) {
             throw new ServiceRuntimeException(e);
         }
@@ -139,10 +138,28 @@ public class CatalogRunner implements JobRunner {
         executor.createJob(builder).run();
 
         log.debug("generate thumbnail end...");
+
     }
 
-    private String generateFilterComplexOneRow(int totalCount) {
-        StringBuilder builder = new StringBuilder(String.format("xstack=inputs=%d:layout=0_0", totalCount));
+    private void generateFilterComplexOneRow(String basename, String dest, long startIndex, long totalCount) {
+
+        String imageSourceFormat =
+            dest + File.separatorChar
+                + DEFAULT_DIR_NAME_TEMP_CATALOG + File.separatorChar
+                + "%d." + DEFAULT_EXTENSION;
+
+        FFmpegBuilder builder =
+            new FFmpegBuilder()
+                .overrideOutputFiles(true);
+
+        // input
+        for (int i = 0; i < totalCount; i++) {
+            builder.addInput(String.format(imageSourceFormat, startIndex + i + 1));
+        }
+
+        StringBuilder filterComplexBuilder = new StringBuilder(
+            String.format("xstack=inputs=%d:layout=0_0", totalCount));
+
         StringBuilder currentW = new StringBuilder("w0");
 
         for (int i = 0; i < totalCount - 1; i++) {
@@ -151,65 +168,115 @@ public class CatalogRunner implements JobRunner {
                 currentW.append(String.format("+w%d", i));
             }
 
-            builder.append("|").append(currentW).append("_0");
+            filterComplexBuilder.append("|").append(currentW).append("_0");
         }
 
-        builder.append(";");
+        filterComplexBuilder.append(";");
 
-        return builder.toString();
+        // filter complex
+        builder.addExtraArgs("-filter_complex", filterComplexBuilder.toString());
+
+        // output
+        builder.addOutput(
+            dest + File.separatorChar
+                + basename + "_catalog_" + (startIndex / (DEFAULT_WIDTH_COUNT * DEFAULT_ROW_COUNT)) + "."
+                + DEFAULT_EXTENSION);
+
+        FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
+
+        executor.createJob(builder).run();
+
     }
 
-    private String generateFilterComplex(long totalCount) {
+    private void generateFilterComplex(String basename, String dest, long startIndex, long totalCount) {
 
-        int rowCount = (int)(totalCount / DEFAULT_WIDTH_COUNT);
-        int remain = (int)(totalCount % DEFAULT_WIDTH_COUNT);
+        FFmpegBuilder builder =
+            new FFmpegBuilder()
+                .overrideOutputFiles(true);
 
-        if (remain > 0) {
+        String imageSourceFormat =
+            dest + File.separatorChar
+                + DEFAULT_DIR_NAME_TEMP_CATALOG + File.separatorChar
+                + "%d." + DEFAULT_EXTENSION;
+
+        long rowCount = totalCount / DEFAULT_WIDTH_COUNT;
+        long remainCount = totalCount % (DEFAULT_ROW_COUNT * DEFAULT_WIDTH_COUNT);
+
+        if (remainCount % DEFAULT_WIDTH_COUNT > 0) {
             rowCount++;
         }
 
-        StringBuilder builder = new StringBuilder();
+        // filterComplex
+        StringBuilder filterComplexBuilder = new StringBuilder();
 
-        if (remain > 0) {
-            builder
-                .append(String.format("[%d:v]", totalCount - 1))
+        // input
+        for (long i = 0; i < totalCount; i++) {
+            builder.addInput(String.format(imageSourceFormat, i + startIndex + 1));
+        }
+
+        // 마지막 처리
+        if (remainCount % DEFAULT_WIDTH_COUNT > 0) {
+            filterComplexBuilder
+                .append(String.format("[%d:v]", remainCount - 1))
                 .append(String.format("scale=%d:-1", DEFAULT_WIDTH_SIZE))
-                .append(String.format(",pad=iw+%d", DEFAULT_WIDTH_SIZE * (DEFAULT_WIDTH_COUNT - remain)))
-                .append(String.format(":ih:color=white[v%d]", totalCount - 1))
+                .append(String.format(",pad=iw+%d",
+                    DEFAULT_WIDTH_SIZE * (DEFAULT_WIDTH_COUNT - (remainCount % DEFAULT_WIDTH_COUNT))))
+                .append(String.format(":ih:color=white[v%d]", remainCount - 1))
                 .append(";");
         }
 
-        for (int i = 0; i < rowCount - 1; i++) {
+        // hstack
+        for (long i = 0; i < rowCount; i++) {
 
-            for (int j = 0; j < 10; j++) {
+            // 일반 row 처리
+            for (int j = 0; j < DEFAULT_WIDTH_COUNT; j++) {
+                long index = (i * DEFAULT_WIDTH_COUNT) + j;
 
-                int index = i * DEFAULT_WIDTH_COUNT + j;
+                if (index == totalCount - 1 && remainCount % DEFAULT_WIDTH_COUNT != 0) {
+                    // 마지막 row 처리
+                    filterComplexBuilder.append(String.format("[v%d]", index));
+                    break;
+                } else {
+                    filterComplexBuilder.append(String.format("[%d:v]", index));
+                }
 
-                builder.append(String.format("[%d:v]", index));
             }
 
-            builder.append("hstack=inputs=10")
-                .append(String.format("[row%d];", i + 1));
+            filterComplexBuilder.append("hstack=inputs=");
+
+            // 마지막 row 처리
+            if (i == rowCount - 1 && remainCount % DEFAULT_WIDTH_COUNT > 0) {
+                filterComplexBuilder.append(remainCount % DEFAULT_WIDTH_COUNT);
+            } else {
+                filterComplexBuilder.append(DEFAULT_WIDTH_COUNT);
+            }
+
+            filterComplexBuilder
+                .append("[row")
+                .append(i + 1)
+                .append("];");
         }
 
-        for (int i = 0; i < remain - 1; i++) {
-            int index = (rowCount - 1) * DEFAULT_WIDTH_COUNT + i;
-            builder.append(String.format("[%d:v]", index));
-        }
-
-        builder.append(String.format("[v%d]", totalCount - 1))
-            .append(String.format("hstack=inputs=%d", remain))
-            .append(String.format("[row%d];", rowCount));
-
+        // vstack
         for (int i = 0; i < rowCount; i++) {
-            builder.append(String.format("[row%d]", i + 1));
+            filterComplexBuilder.append(String.format("[row%d]", i + 1));
         }
 
-        builder.append(String.format("vstack=inputs=%d", rowCount));
+        filterComplexBuilder.append(String.format("vstack=inputs=%d", rowCount));
 
-        log.debug("--filter_complex={}", builder);
+        // filter complex
+        builder.addExtraArgs("-filter_complex", filterComplexBuilder.toString());
 
-        return builder.toString();
+        // output
+        builder.addOutput(
+            dest + File.separatorChar
+                + basename + "_catalog_" + (startIndex / (DEFAULT_WIDTH_COUNT * DEFAULT_ROW_COUNT)) + "."
+                + DEFAULT_EXTENSION);
+
+        FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
+
+        executor.createJob(builder).run();
+
     }
 
 }

@@ -35,8 +35,11 @@ class CatalogRunnerTest {
     @Test
     void run() {
 
-        String sourcePath = "/Users/hwpark/Downloads/test.mp4";
+        // String sourcePath = "/Users/hwpark/Downloads/test.mp4";
         // String sourcePath = "/Users/hwpark/Downloads/test_1.mp4";
+        // String sourcePath = "/Users/hwpark/Downloads/test_2.mp4";
+        // String sourcePath = "/Users/hwpark/Downloads/test_3.mp4";
+        String sourcePath = "/Users/hwpark/Downloads/test_4.mp4";
         String targetPath = "/Users/hwpark/Downloads";
 
         CatalogRunner runner = new CatalogRunner(ffmpeg, ffprobe);
