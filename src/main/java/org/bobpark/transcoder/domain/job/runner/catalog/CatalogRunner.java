@@ -30,10 +30,10 @@ import org.bobpark.transcoder.domain.job.type.JobType;
 public class CatalogRunner implements JobRunner {
 
     private static final String DEFAULT_DIR_NAME_TEMP_CATALOG = "temp";
-    private static final int DEFAULT_WIDTH_SIZE = 400;
-    private static final int DEFAULT_INTERVAL = 2;
-    private static final int DEFAULT_WIDTH_COUNT = 4;
-    private static final int DEFAULT_ROW_COUNT = 2;
+    private static final int DEFAULT_WIDTH_SIZE = 1920;
+    private static final int DEFAULT_INTERVAL = 10;
+    private static final int DEFAULT_WIDTH_COUNT = 10;
+    private static final int DEFAULT_ROW_COUNT = 4;
     private static final String DEFAULT_EXTENSION = "png";
     private static final String DEFAULT_CATALOG_EXTENSION = "png";
 
@@ -63,7 +63,7 @@ public class CatalogRunner implements JobRunner {
         generateThumbnail(com.source(), com.dest());
 
         int itemCount = DEFAULT_ROW_COUNT * DEFAULT_WIDTH_COUNT;
-        long totalCount = totalSeconds / 4 * 2;
+        long totalCount = totalSeconds / (DEFAULT_INTERVAL * 2) * 2;
 
         long catalogImageCount = totalCount / itemCount;
 
@@ -97,11 +97,11 @@ public class CatalogRunner implements JobRunner {
         }
 
         // remove temp
-        try {
-            FileUtils.forceDelete(new File(com.dest() + File.separatorChar + DEFAULT_DIR_NAME_TEMP_CATALOG));
-        } catch (IOException e) {
-            throw new ServiceRuntimeException(e);
-        }
+        // try {
+        //     FileUtils.forceDelete(new File(com.dest() + File.separatorChar + DEFAULT_DIR_NAME_TEMP_CATALOG));
+        // } catch (IOException e) {
+        //     throw new ServiceRuntimeException(e);
+        // }
 
     }
 
@@ -115,6 +115,7 @@ public class CatalogRunner implements JobRunner {
         String outputPath =
             dest + File.separatorChar
                 + DEFAULT_DIR_NAME_TEMP_CATALOG + File.separatorChar
+                + FilenameUtils.getBaseName(source) + File.separatorChar
                 + "%d." + DEFAULT_EXTENSION;
 
         try {
@@ -148,6 +149,7 @@ public class CatalogRunner implements JobRunner {
         String imageSourceFormat =
             dest + File.separatorChar
                 + DEFAULT_DIR_NAME_TEMP_CATALOG + File.separatorChar
+                + basename + File.separatorChar
                 + "%d." + DEFAULT_EXTENSION;
 
         FFmpegBuilder builder =
@@ -199,6 +201,7 @@ public class CatalogRunner implements JobRunner {
         String imageSourceFormat =
             dest + File.separatorChar
                 + DEFAULT_DIR_NAME_TEMP_CATALOG + File.separatorChar
+                + basename + File.separatorChar
                 + "%d." + DEFAULT_EXTENSION;
 
         long rowCount = totalCount / DEFAULT_WIDTH_COUNT;

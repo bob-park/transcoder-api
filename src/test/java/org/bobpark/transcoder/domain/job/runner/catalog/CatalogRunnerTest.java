@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,7 @@ class CatalogRunnerTest {
     @BeforeEach
     void setup() throws IOException {
 
-        Resource lib = new ClassPathResource("lib/ffmpeg/macos");
+        Resource lib = new FileSystemResource("/Users/hwpark/Documents/media/ffmpeg");
 
         String absoluteLibPath = lib.getFile().getAbsolutePath();
 
@@ -35,9 +36,9 @@ class CatalogRunnerTest {
     @Test
     void run() {
 
-        // String sourcePath = "/Users/hwpark/Downloads/test.mp4";
+        String sourcePath = "/Users/hwpark/Downloads/test.mp4";
         // String sourcePath = "/Users/hwpark/Downloads/test_1.mp4";
-        String sourcePath = "/Users/hwpark/Downloads/test_2.mp4";
+        // String sourcePath = "/Users/hwpark/Downloads/test_2.mp4";
         // String sourcePath = "/Users/hwpark/Downloads/test_3.mp4";
         // String sourcePath = "/Users/hwpark/Downloads/test_4.mp4";
         String targetPath = "/Users/hwpark/Downloads";
