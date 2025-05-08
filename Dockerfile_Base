@@ -16,6 +16,12 @@ RUN set -eux \
 
 RUN apt-get install -y ffmpeg
 
+## install MP4Box
+RUN apt-get update \
+    && apt-get install -y \
+      build-essential cmake git yasm pkg-config libavcodec-dev libavformat-dev libavutil-dev libxml2-dev libfreetype6-dev zlib1g-dev
+RUN apt-get install -y gpac
+
 ENV LANG C.UTF-8
 ENV JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto
 
